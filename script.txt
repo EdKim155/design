@@ -1,0 +1,491 @@
+<!-- T123 HTML Block - PUBG Mobile Registration Counter -->
+<style>
+  :root {
+    /* Основные цвета APML стиля - можно менять здесь */
+    --bg: #111;
+    --fg: #FAFAFA;
+    --muted: #9B9B9B;
+    --gold: #F86002;
+    --gold2: #FFD257;
+    --ring: rgba(255,255,255,.08);
+    
+    /* Дополнительные переменные */
+    --card-bg: #1A1A1A;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+    --border-radius: 16px;
+    --transition: all 0.3s ease;
+  }
+
+  /* Переопределение фона Tilda для T123 блока */
+  .t123__textwrapper,
+  .t123,
+  .t-container,
+  .t-col,
+  .t-row {
+    background: var(--bg) !important;
+    background-color: var(--bg) !important;
+  }
+
+  /* Контейнер для нашего блока с принудительным фоном */
+  .pubg-counter-wrapper {
+    background: var(--bg) !important;
+    background-color: var(--bg) !important;
+    padding: 20px 0 !important;
+    margin: 0 !important;
+  }
+
+  .pubg-registration-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gold);
+    border-radius: var(--border-radius);
+    box-shadow: 
+      var(--shadow),
+      0 0 0 1px rgba(255, 179, 0, 0.2),
+      0 0 20px rgba(255, 179, 0, 0.1);
+    padding: 24px;
+    margin: 20px auto;
+    max-width: 500px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--fg);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pubg-registration-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    opacity: 0.8;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .tournament-badge {
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--bg);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.3);
+  }
+
+  .counter-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--fg);
+    text-align: right;
+    flex: 1;
+    min-width: 120px;
+    display: none;
+  }
+
+  .subtitle {
+    color: var(--fg);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .progress-container {
+    margin-bottom: 16px;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    border-radius: 6px;
+    width: 0%;
+    transition: width var(--animate-duration, 450ms) ease-out;
+    position: relative;
+    box-shadow: 0 1px 6px rgba(255, 179, 0, 0.4);
+  }
+
+  .progress-fill.near-full {
+    background: linear-gradient(90deg, #FFB300, #FFC107, #FFD257);
+    box-shadow: 
+      0 1px 6px rgba(255, 179, 0, 0.6),
+      inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent);
+    border-radius: 6px 6px 0 0;
+  }
+
+  .remaining-spots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+    color: var(--fg);
+    font-weight: 500;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .remaining-number {
+    font-weight: 700;
+    color: var(--gold);
+    font-size: 18px;
+  }
+
+  .waitlist-message {
+    background: linear-gradient(135deg, rgba(255, 179, 0, 0.1), rgba(255, 210, 87, 0.05));
+    border: 1px solid rgba(255, 179, 0, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 16px;
+    text-align: center;
+    color: var(--fg);
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .waitlist-highlight {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .loading-state {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .error-state {
+    color: var(--muted);
+  }
+
+  /* Адаптивность для мобильных устройств */
+  @media (max-width: 480px) {
+    .pubg-registration-card {
+      margin: 16px;
+      padding: 20px 16px;
+    }
+
+    .card-header {
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .counter-text {
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .tournament-badge {
+      font-size: 11px;
+      padding: 5px 10px;
+      align-self: center;
+      margin: 0 auto;
+      width: fit-content;
+      display: block;
+    }
+
+    .subtitle {
+      font-size: 12px;
+    }
+
+    .remaining-spots {
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      justify-content: center;
+      text-align: center;
+    }
+  }
+
+  /* Поддержка prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .progress-fill {
+      transition: none;
+    }
+    
+    .pubg-registration-card {
+      transition: none;
+    }
+  }
+</style>
+
+<div class="pubg-counter-wrapper">
+<div class="pubg-registration-card" id="pubgRegistrationCard">
+  <div class="card-header">
+    <div class="tournament-badge" id="tournamentLabel">Регистрация PUBG Mobile</div>
+    <div class="counter-text" id="regCounterText">Загружается...</div>
+  </div>
+  
+  <div class="subtitle" id="subtitleText">
+    Зарегистрировано: 79 из 80 команд
+  </div>
+  
+  <div class="subtitle" id="waitlistTitle" style="display: none;">
+    Все слоты заняты!
+  </div>
+  
+  <div class="progress-container">
+    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div class="progress-fill" id="regCounterBar"></div>
+    </div>
+  </div>
+  
+  <div class="remaining-spots" id="remainingSpotsContainer">
+    <span>Осталось мест:</span>
+    <span class="remaining-number" id="regLeft">—</span>
+  </div>
+  
+  <div class="waitlist-message" id="waitlistMessage" style="display: none;">
+    Регистрируйтесь в лист ожидания, и мы пригласим вас в случае появления слота!
+  </div>
+</div>
+</div>
+
+<script>
+  // Конфигурация - здесь можно менять настройки
+  const CONFIG = {
+    // URL для получения данных конкретной группы из Google Sheets
+    counterUrl: "https://script.google.com/macros/s/AKfycbwh-7VGQSswQiMdEzVH5nTrsb5NQOa_J1rwL0GAZu_EVSYneklNMqof7kKOtzUccocX9Q/exec", 
+    
+    // Настройки группы турнира
+    groupName: "C",                   // A, B, C и т.д. - какую группу отображать
+    groupDate: "27 Сентября 18.00",  // Дата и время группы для отображения
+    
+    maxParticipants: 18,              // МАКСИМАЛЬНОЕ КОЛИЧЕСТВО УЧАСТНИКОВ - МЕНЯЙ ЗДЕСЬ!
+    label: "Проверка мест", // Заголовок бейджа  
+    showLeft: true,                   // Показывать "Осталось мест"
+    animateMs: 450,                   // Длительность анимации бара в мс
+    updateInterval: 10000             // Интервал обновления в миллисекундах (10 сек)
+  };
+
+  // Элементы DOM
+  const elements = {
+    card: document.getElementById('pubgRegistrationCard'),
+    label: document.getElementById('tournamentLabel'),
+    counterText: document.getElementById('regCounterText'),
+    progressBar: document.getElementById('regCounterBar'),
+    remainingSpots: document.getElementById('regLeft'),
+    progressContainer: document.querySelector('.progress-bar'),
+    remainingSpotsContainer: document.getElementById('remainingSpotsContainer'),
+    waitlistMessage: document.getElementById('waitlistMessage'),
+    subtitleText: document.getElementById('subtitleText'),
+    waitlistTitle: document.getElementById('waitlistTitle')
+  };
+
+  // Кэш последних данных для обработки ошибок
+  let lastValidData = null;
+
+  // Установка CSS переменной для анимации
+  document.documentElement.style.setProperty('--animate-duration', CONFIG.animateMs + 'ms');
+
+  // Функция парсинга ответа Apps Script
+  function parseResponse(text) {
+    try {
+      // Отладка: выводим полученные данные в консоль
+      console.log('???? Полученные данные от Apps Script:', text);
+      
+      // Парсим JSON ответ от Apps Script
+      const data = JSON.parse(text);
+      
+      // Проверяем успешность ответа
+      if (!data.success) {
+        console.error('❌ Ошибка Apps Script:', data.error);
+        return null;
+      }
+      
+      // Проверяем наличие поля count
+      if (typeof data.count !== 'number') {
+        console.error('❌ Неверный формат данных:', data);
+        return null;
+      }
+      
+      // Используем лимит из CONFIG
+      const limit = CONFIG.maxParticipants;
+      const remaining = Math.max(0, limit - data.count);
+      
+      console.log('✅ Данные успешно получены:', {
+        count: data.count,
+        limit: limit,
+        remaining: remaining,
+        timestamp: new Date(data.timestamp).toLocaleTimeString()
+      });
+      
+      return {
+        count: data.count,
+        limit: limit,
+        remaining: remaining,
+        timestamp: data.timestamp
+      };
+      
+    } catch (error) {
+      console.error('❌ Ошибка парсинга JSON:', error, 'Текст:', text);
+      return null;
+    }
+  }
+
+  // Функция валидации данных (заменяет стабилизацию)
+  function validateData(newData) {
+    // Если данные корректные, сохраняем их как последние валидные
+    if (newData && typeof newData.count === 'number' && typeof newData.limit === 'number') {
+      lastValidData = newData;
+      return newData;
+    }
+    
+    // Если данные некорректные, используем последние валидные (если есть)
+    if (lastValidData) {
+      console.log('⚠️ Используем кэшированные данные из-за ошибки');
+      return lastValidData;
+    }
+    
+    // Если нет ни новых, ни кэшированных данных
+    return null;
+  }
+
+  // Функция обновления UI
+  function updateUI(data) {
+    const isValidData = data && typeof data.count === 'number' && typeof data.limit === 'number';
+    
+    if (!isValidData) {
+      // Состояние ошибки
+      elements.counterText.textContent = 'Зарегистрировано: —';
+      elements.counterText.className = 'counter-text error-state';
+      elements.subtitleText.textContent = 'Зарегистрировано: —';
+      elements.remainingSpots.textContent = '—';
+      elements.progressBar.style.width = '0%';
+      elements.progressContainer.setAttribute('aria-valuenow', '0');
+      return;
+    }
+
+    // Нормализуем значения
+    const count = Math.max(0, data.count);
+    const limit = data.limit;
+    const remaining = Math.max(0, limit - count);
+    const percentage = Math.min(100, Math.max(0, (count / limit) * 100));
+
+    // Обновляем текст счётчика (скрытый в header)
+    elements.counterText.textContent = `Зарегистрировано: ${count} из ${limit} команд`;
+    elements.counterText.className = 'counter-text';
+
+    // Обновляем основной subtitle (видимый)
+    elements.subtitleText.textContent = `Зарегистрировано: ${count} из ${limit} команд`;
+
+    // Обновляем прогресс-бар
+    elements.progressBar.style.width = percentage + '%';
+    elements.progressContainer.setAttribute('aria-valuenow', Math.round(percentage));
+
+    // Подсвечиваем бар при заполнении ≥95%
+    if (percentage >= 95) {
+      elements.progressBar.classList.add('near-full');
+    } else {
+      elements.progressBar.classList.remove('near-full');
+    }
+
+    // Проверяем переполнение (больше лимита)
+    if (count >= limit) {
+      // Скрываем обычный счётчик и показываем waitlist
+      elements.subtitleText.style.display = 'none';
+      elements.waitlistTitle.style.display = 'block';
+      elements.remainingSpotsContainer.style.display = 'none';
+      elements.waitlistMessage.style.display = 'block';
+    } else {
+      // Показываем обычный режим
+      elements.subtitleText.style.display = 'block';
+      elements.waitlistTitle.style.display = 'none';
+      elements.remainingSpotsContainer.style.display = 'flex';
+      elements.waitlistMessage.style.display = 'none';
+      
+      if (CONFIG.showLeft) {
+        elements.remainingSpots.textContent = remaining;
+      }
+    }
+  }
+
+  // Функция загрузки данных
+  async function loadRegistrationData() {
+    try {
+      elements.counterText.textContent = 'Загружается...';
+      elements.counterText.className = 'counter-text loading-state';
+      elements.subtitleText.textContent = 'Загружается...';
+
+      // Добавляем параметр группы и timestamp для отладки
+      const timestamp = Date.now();
+      const url = CONFIG.counterUrl + '?group=' + CONFIG.groupName + '&t=' + timestamp;
+      
+      console.log('???? Запрос к Apps Script для группы', CONFIG.groupName + ':', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const text = await response.text();
+      const data = parseResponse(text);
+      
+      // Валидируем данные
+      const validData = validateData(data);
+      updateUI(validData);
+    } catch (error) {
+      console.warn('Ошибка загрузки данных регистрации:', error);
+      updateUI(null);
+    }
+  }
+
+  // Инициализация
+  function init() {
+    // Устанавливаем заголовок с группой
+    elements.label.textContent = `${CONFIG.label} - Группа ${CONFIG.groupName}`;
+    
+    // Устанавливаем дату группы
+    elements.subtitleText.textContent = CONFIG.groupDate + " мск";
+    
+    // Загружаем данные
+    loadRegistrationData();
+    
+    // Обновляем с интервалом из конфигурации
+    setInterval(loadRegistrationData, CONFIG.updateInterval);
+  }
+
+  // Запуск после загрузки DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>
